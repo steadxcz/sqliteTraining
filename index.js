@@ -13,6 +13,7 @@ const db = new sqlite3.Database('./database/database.db');
 /************************************************************/
 //app.use(express.static(path.join(__dirname, 'public')));
 app.listen(port);
+console.log(`listeting on port ${port}`);
 app.use('/', router);
 
 router.get('/', function (req, res) {
@@ -31,19 +32,19 @@ router.get('/api', function (req, res) {
 
 
 
-
+/* testing block
 db.all("SELECT * FROM users", (error, rows) => {
   rows.forEach((row) => {
     console.log(row.id + " " + row.login);
   })
-});
+});*/
 
 
 function databaseController(param, res) {
 
   db.get(`SELECT * FROM users WHERE (id=${param})`, (err, row) => {
-    console.log(row);
-    console.log(row.login)
+    console.log(`response from DB: ${row}`);
+
     res.end(`${row.login}`);
   });
   
