@@ -11,7 +11,7 @@ const db = new sqlite3.Database('./database/database.db');
 
 
 /************************************************************/
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.listen(port);
 console.log(`listeting on port ${port}`);
 app.use('/', router);
@@ -23,11 +23,11 @@ router.get('/', function (req, res) {
 
 router.get('/api', function (req, res) {
   var reqUrl = url.parse(req.url, true);
-  
-  if (reqUrl.query.a != undefined) {
-    console.log(`got a request ${reqUrl.query.a}`);
-    databaseController(reqUrl.query.a, res);
+  console.log(reqUrl.query);
+  if (reqUrl.query.login != undefined && reqUrl.query.password != undefined) {
+    databaseController(reqUrl.query.login, reqUrl.query.password, res);
   }
+
 });
 
 
@@ -40,12 +40,23 @@ db.all("SELECT * FROM users", (error, rows) => {
 });*/
 
 
-function databaseController(param, res) {
+function databaseController(login, password, res) {
+ // console.log(`SELECT * FROM users WHERE login=${login}`);
 
-  db.get(`SELECT * FROM users WHERE (id=${param})`, (err, row) => {
-    console.log(`response from DB: ${row}`);
-
-    res.end(`${row.login}`);
-  });
   
+  db.get(`SELECT * FROM users WHERE login="${login}"`, (err, row) => {
+    if (row != null) {
+      console.log(1234);
+      if (row.password == password) {
+        console.log("authorized " + login);
+        res.end(row.walletID);
+      }
+    } else {
+      db.get(`INSERT INTO users (login,password,walletID) 
+              VALUES ("${login}","${password}","${Math.round(Math.random()*1000)}")     
+      `);
+    }
+
+  });
+
 }
